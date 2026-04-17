@@ -1,4 +1,8 @@
-﻿using GloboTicket.TicketManagement.Application.Features.Events.Queries.GetEventList;
+﻿using GloboTicket.TicketManagement.Application.Features.Events.Commands.CreateEvent;
+using GloboTicket.TicketManagement.Application.Features.Events.Commands.DeleteEvent;
+using GloboTicket.TicketManagement.Application.Features.Events.Commands.UpdateEvent;
+using GloboTicket.TicketManagement.Application.Features.Events.Queries.GetEventDetail;
+using GloboTicket.TicketManagement.Application.Features.Events.Queries.GetEventList;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,10 +28,39 @@ namespace GloboTicket.TicketManagement.Api.Controllers
             return Ok(result);
         }
 
-
-        public IActionResult Index()
+        [HttpGet("{id}", Name = "GetEventById")]
+        public async Task<ActionResult<EventDetailVm>> GetEventById(Guid id)
         {
-            return View();
+            var getEventDetailQuery = new GetEventDetailQuery() { Id = id };
+            return Ok(await _mediator.Send(getEventDetailQuery));
+        }
+
+        [HttpPost(Name = "AddEvent")]
+        public async Task<ActionResult<Guid>> Create([FromBody]CreateEventCommand createEventCommand)
+        {
+            var id = await _mediator.Send(createEventCommand);
+            return Ok(id);
+        }
+
+        [HttpPut(Name = "UpdateEvent")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<Guid>> Update([FromBody] UpdateEventCommand updateEventCommand)
+        {
+            await _mediator.Send(updateEventCommand);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}", Name = "DeleteEvent")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<Guid>> Update(Guid id)
+        {
+            var deleteEventCommand = new DeleteEventCommand() { EventId = id };
+            await _mediator.Send(deleteEventCommand);
+            return NoContent();
         }
     }
 }
