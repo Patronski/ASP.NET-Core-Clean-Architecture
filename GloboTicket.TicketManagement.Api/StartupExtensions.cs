@@ -26,6 +26,8 @@ namespace GloboTicket.TicketManagement.Api
                             .AllowCredentials()
                 ));
 
+            
+
             return builder.Build();
         }
 
